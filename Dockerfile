@@ -17,11 +17,13 @@ ENV VERSION release
 
 RUN ./gradlew shadowJar
 
-FROM openjdk:17-alpine
+FROM adoptopenjdk/openjdk8:alpine-slim
 
 WORKDIR /navigator
+
+ENV JAVA_OPTS "-Xms128m -Xmx128m"
 
 COPY --from=frontendBuilder /code/build public
 COPY --from=backendBuilder /code/build/libs/corda-navigator-release-all.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "/navigator/app.jar"]
+ENTRYPOINT [ "java", "-jar", "/navigator/app.jar" ]

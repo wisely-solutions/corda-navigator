@@ -76,7 +76,9 @@ private fun Application.mainModule() {
                 }
             }
         }
+
+
     }
 
-    install(this)
+    install(this, staticFilesLocation)
 }

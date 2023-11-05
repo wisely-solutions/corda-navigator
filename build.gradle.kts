@@ -12,6 +12,7 @@ version = System.getenv("VERSION") ?: "SNAPSHOT"
 
 repositories {
     mavenCentral()
+    jcenter()
     maven("https://software.r3.com/artifactory/corda")
 }
 
