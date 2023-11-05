@@ -1,0 +1,19 @@
+<configuration>
+
+    <!-- Define the default log level and add an appender -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <!-- Appender which logs to console -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- Encoder which outputs the level, logger name, and message -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Specific configuration for a logger to log at TRACE level -->
+    <logger name="com.example" level="TRACE"/>
+
+</configuration>
