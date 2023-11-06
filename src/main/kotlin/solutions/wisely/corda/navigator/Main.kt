@@ -71,7 +71,10 @@ private fun Application.mainModule() {
 
                 route("/{id}") {
                     delete { removeController.remove(this.context) }
-                    get("/transactions") { transactionsController.list(this.context) }
+                    route("/transaction") {
+                        get("/list") { transactionsController.list(this.context) }
+                        get("/{txId}") { transactionsController.get(this.context) }
+                    }
                     get("/states") { vaultController.search(this.context) }
                 }
             }

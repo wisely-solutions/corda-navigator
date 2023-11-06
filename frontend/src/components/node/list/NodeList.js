@@ -9,7 +9,7 @@ import { faXmark, faPlusSquare } from "@fortawesome/free-solid-svg-icons";
 import {deleteNode} from "../../../services/RpcService";
 
 
-const NodeRegister = ({}) => {
+const NodeList = ({}) => {
     const { nodesStore } = useStores()
     const navigate = useNavigate()
 
@@ -58,4 +58,4 @@ const NodeRegister = ({}) => {
     );
 };
 
-export default NodeRegister;
+export default NodeList;

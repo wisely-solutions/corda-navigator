@@ -14,6 +14,10 @@ export const fetchTransactions = async (nodeId) => {
     return axios.get(`${API_BASE_URL}/node/${nodeId}/transactions`);
 };
 
+export const fetchTransaction = async (nodeId, txId) => {
+    return axios.get(`${API_BASE_URL}/node/${nodeId}/transaction/${txId}`);
+};
+
 export const fetchNodes = async () => {
     return axios.get(`${API_BASE_URL}/node/list`);
 };

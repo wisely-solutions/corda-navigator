@@ -5,6 +5,7 @@ import NodePage from "./pages/NodePage";
 import {StoreProvider} from "./store";
 import NodesContext from "./context/NodesContext";
 import AddNodePage from "./pages/AddNodePage";
+import TransactionPage from "./pages/TransactionPage";
 
 function App() {
     return (
@@ -14,7 +15,8 @@ function App() {
                     <Routes>
                         <Route exact path="/" element={<InitialPage/>}/>
                         <Route path="/node/add" element={<AddNodePage/>}/>
-                        <Route path="/node/:name" element={<NodePage/>}/>
+                        <Route path="/node/:nodeId" element={<NodePage/>}/>
+                        <Route path="/node/:nodeId/transaction/:txId" element={<TransactionPage/>}/>
                         {/* Add other routes as needed */}
                         <Route element={<NotFoundPage/>}/>
                     </Routes>

@@ -19,7 +19,11 @@ object ExceptionHandlers {
         val indexFile = File(path, "index.html")
         app.install(StatusPages) {
             status(HttpStatusCode.NotFound) { call, _ ->
-                call.respondFile(indexFile)
+                if (indexFile.exists()) {
+                    call.respondFile(indexFile)
+                } else {
+                    call.respond(HttpStatusCode.NotFound)
+                }
             }
             exception<Throwable> { call, cause ->
                 logger.error("Unhandled exception caught", cause)

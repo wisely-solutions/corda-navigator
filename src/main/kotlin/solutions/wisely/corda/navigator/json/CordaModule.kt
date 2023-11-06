@@ -2,20 +2,27 @@ package solutions.wisely.corda.navigator.json
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.Version
+import com.fasterxml.jackson.databind.BeanDescription
 import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.SerializationConfig
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.databind.ser.BeanSerializerModifier
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import java.security.PublicKey
+import net.corda.core.contracts.CommandData
+import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateRef
 import net.corda.core.identity.CordaX500Name
 import org.apache.commons.codec.binary.Base64
+
 
 class CordaModule : SimpleModule("CordaModule", Version.unknownVersion()) {
     init {
         addSerializer(PublicKey::class.java, PublicKeySerializer())
         addSerializer(StateRef::class.java, StateRefSerializer())
         addSerializer(CordaX500Name::class.java, CordaX500NameSerializer())
+        addSerializer(CommandData::class.java, CommandDataSerializer())
     }
 
     class PublicKeySerializer : StdSerializer<PublicKey>(PublicKey::class.java) {
@@ -31,7 +38,12 @@ class CordaModule : SimpleModule("CordaModule", Version.unknownVersion()) {
     class StateRefSerializer : StdSerializer<StateRef>(StateRef::class.java) {
         override fun serialize(value: StateRef?, gen: JsonGenerator?, provider: SerializerProvider?) {
             if (value != null) {
-                gen!!.writeString(value.toString())
+                gen!!.writeStartObject()
+                gen.writeFieldName("tx")
+                gen.writeString(value.txhash.toString())
+                gen.writeFieldName("index")
+                gen.writeNumber(value.index)
+                gen.writeEndObject()
             } else {
                 gen!!.writeNull()
             }
@@ -46,5 +58,12 @@ class CordaModule : SimpleModule("CordaModule", Version.unknownVersion()) {
                 gen!!.writeNull()
             }
         }
+    }
+
+    class CommandDataSerializer : ValueSerializer<CommandData>(CommandData::class.java) {
+        override fun writeValue(value: CommandData, gen: JsonGenerator) {
+            gen.writeString(value::class.java.name)
+        }
+
     }
 }
