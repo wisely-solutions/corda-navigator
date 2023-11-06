@@ -10,8 +10,9 @@ export const registerNode = async (rpcClientData) => {
 export const deleteNode = async (nodeId) => {
     return axios.delete(`${API_BASE_URL}/node/${nodeId}`);
 };
-export const fetchTransactions = async (nodeId) => {
-    return axios.get(`${API_BASE_URL}/node/${nodeId}/transactions`);
+export const fetchTransactions = async (nodeId, filters, pagination) => {
+    let query = `page=${pagination.page}&pageItems=${pagination.itemsPerPage}`
+    return axios.get(`${API_BASE_URL}/node/${nodeId}/transaction/list?${query}`);
 };
 
 export const fetchTransaction = async (nodeId, txId) => {
@@ -32,6 +33,10 @@ export const fetchStates = async (nodeId, filters, pagination) => {
 
 export const fetchState = async (nodeId, txId, outputIndex) => {
     return axios.get(`${API_BASE_URL}/node/${nodeId}/state/${txId}/${outputIndex}`);
+};
+
+export const fetchNetwork = async (nodeId) => {
+    return axios.get(`${API_BASE_URL}/node/${nodeId}/network`);
 };
 
 export const fetchFilterStates = async () => {

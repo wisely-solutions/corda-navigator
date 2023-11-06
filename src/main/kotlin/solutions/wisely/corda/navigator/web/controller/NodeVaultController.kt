@@ -21,6 +21,7 @@ import org.reflections.util.ConfigurationBuilder
 import org.slf4j.LoggerFactory
 import solutions.wisely.corda.navigator.classpath.JarLoader.urls
 import solutions.wisely.corda.navigator.config.ConfigService
+import solutions.wisely.corda.navigator.exceptions.EntityNotFoundException
 import solutions.wisely.corda.navigator.rpc.RPCConnectionManager
 
 class NodeVaultController(
@@ -100,20 +101,10 @@ class NodeVaultController(
     }
 
     suspend fun search(call: ApplicationCall) {
-        val nodeId = call.parameters["id"]
-        if (nodeId == null) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid node ID")
-            return
-        }
-        val page = call.parameters["page"]?.toInt() ?: 1
-        val pageItems = call.parameters["pageItems"]?.toInt() ?: 20
+        val nodeId = call.nodeId()
+        val pageRequest = call.pagination()
 
-        val node = configService.findById(nodeId)
-
-        if (node == null) {
-            call.respond(HttpStatusCode.NotFound, "Node not found")
-            return
-        }
+        val node = configService.findById(nodeId) ?: throw EntityNotFoundException.node(nodeId)
 
         try {
             // Get or create the RPC connection
@@ -121,8 +112,8 @@ class NodeVaultController(
 
             // Fetching the states from the node's vault
             val paging = PageSpecification(
-                page,
-                pageItems
+                pageRequest.page,
+                pageRequest.pageSize
             )
 
             val stateTypesFilter = call.request.queryParameters.getAll("stateType")?.toSet()?.map {
@@ -148,9 +139,11 @@ class NodeVaultController(
             // Respond with the list of states
 
             call.respond(ResultPage(
-                paging.pageNumber,
-                paging.pageSize,
-                queryResult.totalStatesAvailable,
+                Pagination(
+                    queryResult.totalStatesAvailable,
+                    paging.pageNumber,
+                    paging.pageSize
+                ),
                 queryResult.states.zip(queryResult.statesMetadata).map {
                     StateInfo(
                         it.first,
@@ -176,13 +169,6 @@ class NodeVaultController(
         )
     }
 }
-
-data class ResultPage<T>(
-    val page: Int,
-    val pageSize: Int,
-    val total: Long,
-    val items: List<T>
-)
 
 
 

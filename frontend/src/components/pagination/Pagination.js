@@ -1,8 +1,9 @@
 import React from "react";
 import {Pagination} from "react-bootstrap";
 
-const PaginationComponent = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+const PaginationComponent = ({ pagination, onPageChange }) => {
+    const totalPages = Math.ceil(pagination.total / pagination.pageSize);
+    let currentPage = pagination.page
 
     const getPaginationItems = () => {
         let items = [];

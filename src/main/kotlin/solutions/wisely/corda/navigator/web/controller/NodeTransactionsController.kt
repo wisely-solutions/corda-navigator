@@ -4,6 +4,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respond
 import java.security.PublicKey
+import kotlin.math.max
+import kotlin.math.min
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
@@ -16,6 +18,7 @@ import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import org.slf4j.LoggerFactory
 import solutions.wisely.corda.navigator.config.ConfigService
+import solutions.wisely.corda.navigator.exceptions.EntityNotFoundException
 import solutions.wisely.corda.navigator.rpc.RPCConnectionManager
 
 class NodeTransactionsController (
@@ -27,58 +30,35 @@ class NodeTransactionsController (
     }
 
     suspend fun get (call: ApplicationCall) {
-        val nodeId = call.parameters["id"]
-        if (nodeId == null) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid node ID")
-            return
-        }
-        val txId = call.parameters["txId"]
-        if (txId == null) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid tx ID")
-            return
-        }
-        val node = configService.findById(nodeId)
+        val nodeId = call.nodeId()
+        val txId = call.transactionId()
 
-        if (node == null) {
-            call.respond(HttpStatusCode.NotFound, "Node not found")
-            return
-        }
+        val node = configService.findById(nodeId) ?: throw EntityNotFoundException.node(nodeId)
 
         val rpcConnection = rpcConnectionManager.connect(node)
 
         val tx = rpcConnection.transactions.list.firstOrNull { it.id.toString() == txId }
             ?.let { toOutput(rpcConnection, it) }
+            ?: throw EntityNotFoundException.transaction(txId)
 
-
-        if (tx == null) {
-            call.respond(HttpStatusCode.NotFound, mapOf("error" to "no transaction with id found"))
-        } else {
-            call.respond(HttpStatusCode.OK, tx)
-        }
-
+        call.respond(HttpStatusCode.OK, tx)
     }
 
     suspend fun list (call: ApplicationCall) {
-        val nodeId = call.parameters["id"]
-        if (nodeId == null) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid node ID")
-            return
-        }
+        val nodeId = call.nodeId()
+        val pageRequest = call.pagination()
 
-        val node = configService.findById(nodeId)
-
-        if (node == null) {
-            call.respond(HttpStatusCode.NotFound, "Node not found")
-            return
-        }
+        val node = configService.findById(nodeId) ?: throw EntityNotFoundException.node(nodeId)
 
         try {
             // Establish a connection to the Corda node
             val rpcConnection = rpcConnectionManager.connect(node)
 
             // It's crucial to close the connection after use to prevent resource leak
+            val startIndex = (pageRequest.page - 1) * pageRequest.pageSize
+
             val txList = rpcConnection.transactions.list
-                .subList(0, 50)
+                .safeSubList(startIndex, startIndex+pageRequest.pageSize)
                 .map {
                     st ->
                     toOutput(rpcConnection, st)
@@ -86,10 +66,21 @@ class NodeTransactionsController (
 
 
             // Respond with the list of transaction IDs
-            call.respond(txList)
+            call.respond(ResultPage(
+                Pagination(
+                    rpcConnection.transactions.list.size.toLong(),
+                    pageRequest.page,
+                    pageRequest.pageSize
+                ),
+                txList
+            ))
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Error retrieving transactions")
         }
+    }
+
+    fun <T> List<T>.safeSubList (start: Int, end: Int) : List<T> {
+        return this.subList(max(start, 0), min(end, this.size))
     }
 
     private fun toOutput(

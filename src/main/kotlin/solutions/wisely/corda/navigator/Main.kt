@@ -23,6 +23,7 @@ import solutions.wisely.corda.navigator.json.DateModule
 import solutions.wisely.corda.navigator.rpc.RPCConnectionManager
 import solutions.wisely.corda.navigator.web.ExceptionHandlers.install
 import solutions.wisely.corda.navigator.web.controller.NodeListController
+import solutions.wisely.corda.navigator.web.controller.NodeNetworkController
 import solutions.wisely.corda.navigator.web.controller.NodeRegisterController
 import solutions.wisely.corda.navigator.web.controller.NodeRemoveController
 import solutions.wisely.corda.navigator.web.controller.NodeTransactionsController
@@ -55,6 +56,7 @@ private fun Application.mainModule() {
     val listController = NodeListController(configService)
     val transactionsController = NodeTransactionsController(configService, rpcConnectionManager)
     val vaultController = NodeVaultController(configService, rpcConnectionManager)
+    val networkController = NodeNetworkController(configService, rpcConnectionManager)
 
     val staticFilesLocation = File(System.getProperty("ROOT_DIR")?.ifEmpty { null } ?: "public")
 
@@ -79,6 +81,7 @@ private fun Application.mainModule() {
                         get("/search") { vaultController.search(this.context) }
                         get("/{txId}/{index}") { vaultController.get(this.context) }
                     }
+                    get("/network") { networkController.view(this.context) }
                 }
             }
         }

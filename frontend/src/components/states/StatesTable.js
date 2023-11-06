@@ -49,8 +49,7 @@ export const StatesTable = ({name, filters, itemsPerPage}) => {
                 ))}
                 </tbody>
             </table>
-            <PaginationComponent currentPage={stateResult.page} totalItems={stateResult.total}
-                                 itemsPerPage={stateResult.pageSize} onPageChange={p => setPage(p)} />
+            <PaginationComponent pagination={stateResult.pagination} onPageChange={p => setPage(p)} />
         </div>
     )
 }

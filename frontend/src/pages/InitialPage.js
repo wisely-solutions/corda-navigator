@@ -11,13 +11,6 @@ import NodeRegister from "../components/node/register/NodeRegister";
 
 const InitialPage = () => {
     let {nodesStore} = useStores();
-    const navigate = useNavigate();
-
-
-    const handleSelectClient = (clientId) => {
-        // Navigate to the page for the selected client
-        navigate(`/node/${clientId}`);
-    };
 
     if (nodesStore.isEmpty) {
         // Just add!

@@ -1,11 +1,9 @@
 import React from "react";
-import NodeTransactions from "../components/NodeTransactions";
 import {useParams} from "react-router-dom";
-import NodeStates from "../components/states/NodeStates";
 import BasePage from "./layout/BasePage";
 import {Col, Container, Row} from "react-bootstrap";
 import {useStores} from "../store";
-import NodesContext from "../context/NodesContext";
+import NetworkView from "../components/node/network/NetworkView";
 
 const NodePage = () => {
     let {nodeId} = useParams();
@@ -22,16 +20,10 @@ const NodePage = () => {
                         </p>
                     </Col>
                 </Row>
-                {/*<Row>*/}
-                {/*    <Col>*/}
-                {/*        <h2>Transactions</h2>*/}
-                {/*        <NodeTransactions name={params.name}/>*/}
-                {/*    </Col>*/}
-                {/*</Row>*/}
                 <Row>
                     <Col>
-                        <h2>States</h2>
-                        <NodeStates name={nodeId}/>
+                        <h2>Network</h2>
+                        <NetworkView />
                     </Col>
                 </Row>
             </Container>

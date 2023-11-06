@@ -4,14 +4,14 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.plugins.statuspages.statusFile
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
-import io.micrometer.core.instrument.binder.jetty.JettyClientTags.status
 import java.io.File
 import java.sql.SQLException
 import org.slf4j.LoggerFactory
+import solutions.wisely.corda.navigator.exceptions.MissingParameterException
+import solutions.wisely.corda.navigator.exceptions.EntityNotFoundException
 
 object ExceptionHandlers {
     private val logger = LoggerFactory.getLogger(ExceptionHandlers::class.java)
@@ -25,15 +25,24 @@ object ExceptionHandlers {
                     call.respond(HttpStatusCode.NotFound)
                 }
             }
+            exception<MissingParameterException> { call, cause ->
+                call.respondText(
+                    text = cause.message ?: "Missing parameter",
+                    status = HttpStatusCode.BadRequest
+                )
+            }
+            exception<EntityNotFoundException> { call, cause ->
+                call.respondText(
+                    text = cause.message ?: "Not Found",
+                    status = HttpStatusCode.NotFound
+                )
+            }
             exception<Throwable> { call, cause ->
                 logger.error("Unhandled exception caught", cause)
                 call.respondText(
                     text = "An unexpected error occurred: ${cause.localizedMessage}",
                     status = HttpStatusCode.InternalServerError
                 )
-            }
-            exception<SQLException> { call, cause ->
-                call.respond(HttpStatusCode.ServiceUnavailable, "Database error: ${cause.localizedMessage}")
             }
             // You can add more exception handlers here
         }

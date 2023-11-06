@@ -23,7 +23,9 @@ const TopBar = () => {
                     />
                 </Navbar.Brand>
                 {nodeId && <Nav>
-                    <Nav.Link onClick={() => navigate(`/node/${nodeId}`)}>States</Nav.Link>
+                    <Nav.Link onClick={() => navigate(`/node/${nodeId}`)}>Home</Nav.Link>
+                    <Nav.Link onClick={() => navigate(`/node/${nodeId}/states`)}>States</Nav.Link>
+                    <Nav.Link onClick={() => navigate(`/node/${nodeId}/transactions`)}>Transactions</Nav.Link>
                 </Nav>}
                 <Navbar.Toggle />
                 <Navbar.Collapse className="justify-content-end">

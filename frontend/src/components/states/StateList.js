@@ -1,4 +1,4 @@
-// src/components/NodeStates.js
+// src/components/StateList.js
 
 import React, {useState} from 'react';
 
@@ -7,7 +7,7 @@ import {SearchFilters} from "./SearchFilters";
 import {StatesTable} from "./StatesTable";
 
 
-const NodeStates = ({ name }) => {
+const StateList = ({ name }) => {
     const [filters, setFilters] = useState({
         stateTypes: []
     })
@@ -20,4 +20,4 @@ const NodeStates = ({ name }) => {
     );
 };
 
-export default NodeStates;
+export default StateList;
