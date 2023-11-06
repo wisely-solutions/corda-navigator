@@ -22,16 +22,12 @@ export const fetchNodes = async () => {
     return axios.get(`${API_BASE_URL}/node/list`);
 };
 
-export const fetchStates = async (nodeId, filters) => {
-    let query = ""
+export const fetchStates = async (nodeId, filters, pagination) => {
+    let query = `page=${pagination.page}&pageItems=${pagination.itemsPerPage}`
     if (filters.stateTypes && filters.stateTypes.length && filters.stateTypes.length > 0) {
-        query = query + filters.stateTypes.map(it => `stateType=${it}`).join("&")
+        query = query + "&" + filters.stateTypes.map(it => `stateType=${it}`).join("&")
     }
-    if (query !== "") {
-        return axios.get(`${API_BASE_URL}/node/${nodeId}/states?${query}`);
-    } else {
-        return axios.get(`${API_BASE_URL}/node/${nodeId}/states`);
-    }
+    return axios.get(`${API_BASE_URL}/node/${nodeId}/state/search?${query}`);
 };
 
 export const fetchState = async (nodeId, txId, outputIndex) => {

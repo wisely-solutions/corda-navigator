@@ -4,14 +4,19 @@ import Loading from "../ux/loading/Loading";
 import {Badge} from "react-bootstrap";
 import {StateDetail} from "./StateDetail";
 import {useNavigate, useParams} from "react-router-dom";
+import PaginationComponent from "../pagination/Pagination";
 
-export const StatesTable = ({name, filters}) => {
+export const StatesTable = ({name, filters, itemsPerPage}) => {
     const [loaded, setLoaded] = useState(false)
     const [stateResult, setStateResult] = useState([]);
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
         setLoaded(false)
-        fetchStates(name, filters)
+        fetchStates(name, filters, {
+            itemsPerPage: itemsPerPage,
+            page: page,
+        })
             .then(r => {
                 setStateResult(r.data)
                 setLoaded(true)
@@ -19,7 +24,7 @@ export const StatesTable = ({name, filters}) => {
             .catch(e => {
                 console.error('Error fetching states:', e);
             })
-    }, [name, filters]);
+    }, [name, filters, itemsPerPage, page]);
 
 
     if (!loaded) {
@@ -44,6 +49,8 @@ export const StatesTable = ({name, filters}) => {
                 ))}
                 </tbody>
             </table>
+            <PaginationComponent currentPage={stateResult.page} totalItems={stateResult.total}
+                                 itemsPerPage={stateResult.pageSize} onPageChange={p => setPage(p)} />
         </div>
     )
 }

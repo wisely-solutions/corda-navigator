@@ -15,7 +15,7 @@ const NodeStates = ({ name }) => {
     return (
         <>
             <SearchFilters initialFilters={filters} onChange={(newFilters) => setFilters(newFilters)} />
-            <StatesTable name={name} filters={filters} />
+            <StatesTable name={name} filters={filters} itemsPerPage={20} />
         </>
     );
 };

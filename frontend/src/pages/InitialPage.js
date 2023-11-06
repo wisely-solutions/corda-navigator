@@ -41,13 +41,7 @@ const InitialPage = () => {
 
     return (
         <BasePage>
-            <Container>
-                <Row className="justify-content-md-center">
-                    <Col md="8">
-                        <NodeList/>
-                    </Col>
-                </Row>
-            </Container>
+            <NodeList/>
         </BasePage>
     );
 };

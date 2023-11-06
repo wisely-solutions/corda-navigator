@@ -1,5 +1,5 @@
 import React from "react";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 
 
 import logo from './corda.png';
@@ -8,6 +8,7 @@ import {useStores} from "../../store";
 const TopBar = () => {
     let navigate = useNavigate()
     let { nodesStore } = useStores()
+    let { nodeId } = useParams()
 
     return (
         <Navbar expand="xl" className="bg-body-tertiary">
@@ -21,6 +22,9 @@ const TopBar = () => {
                         alt="Corda Navigator Logo"
                     />
                 </Navbar.Brand>
+                {nodeId && <Nav>
+                    <Nav.Link onClick={() => navigate(`/node/${nodeId}`)}>States</Nav.Link>
+                </Nav>}
                 <Navbar.Toggle />
                 <Navbar.Collapse className="justify-content-end">
                     <Nav>

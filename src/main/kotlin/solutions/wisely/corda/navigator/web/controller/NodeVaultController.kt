@@ -105,6 +105,8 @@ class NodeVaultController(
             call.respond(HttpStatusCode.BadRequest, "Invalid node ID")
             return
         }
+        val page = call.parameters["page"]?.toInt() ?: 1
+        val pageItems = call.parameters["pageItems"]?.toInt() ?: 20
 
         val node = configService.findById(nodeId)
 
@@ -118,7 +120,10 @@ class NodeVaultController(
             val proxy = rpcConnectionManager.connect(node).proxy
 
             // Fetching the states from the node's vault
-            val paging = PageSpecification()
+            val paging = PageSpecification(
+                page,
+                pageItems
+            )
 
             val stateTypesFilter = call.request.queryParameters.getAll("stateType")?.toSet()?.map {
                 Class.forName(it) as Class<out ContractState>
