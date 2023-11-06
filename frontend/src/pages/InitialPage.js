@@ -34,7 +34,9 @@ const InitialPage = () => {
 
     return (
         <BasePage>
-            <NodeList/>
+            <Container>
+                <NodeList/>
+            </Container>
         </BasePage>
     );
 };
