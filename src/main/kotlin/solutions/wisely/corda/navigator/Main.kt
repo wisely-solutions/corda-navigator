@@ -75,6 +75,9 @@ private fun Application.mainModule() {
                         get("/list") { transactionsController.list(this.context) }
                         get("/{txId}") { transactionsController.get(this.context) }
                     }
+                    route("/state") {
+                        get("/{txId}/{index}") { vaultController.get(this.context) }
+                    }
                     get("/states") { vaultController.search(this.context) }
                 }
             }

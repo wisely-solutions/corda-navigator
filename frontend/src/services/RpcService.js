@@ -34,6 +34,10 @@ export const fetchStates = async (nodeId, filters) => {
     }
 };
 
+export const fetchState = async (nodeId, txId, outputIndex) => {
+    return axios.get(`${API_BASE_URL}/node/${nodeId}/state/${txId}/${outputIndex}`);
+};
+
 export const fetchFilterStates = async () => {
     return axios.get(`${API_BASE_URL}/filter/states`);
 };

@@ -4,6 +4,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respond
 import net.corda.core.contracts.ContractState
+import net.corda.core.contracts.StateAndRef
+import net.corda.core.contracts.StateRef
+import net.corda.core.contracts.TransactionState
+import net.corda.core.crypto.SecureHash
 import net.corda.core.internal.isAbstractClass
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.PageSpecification
@@ -36,6 +40,63 @@ class NodeVaultController(
 
     companion object {
         private val logger = LoggerFactory.getLogger(NodeVaultController::class.java)!!
+    }
+
+    suspend fun get (call: ApplicationCall) {
+        val nodeId = call.parameters["id"]
+        if (nodeId == null) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid node ID")
+            return
+        }
+        val txId = call.parameters["txId"]
+        if (txId == null) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid tx ID")
+            return
+        }
+        val index = call.parameters["index"]
+        if (index == null) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid index")
+            return
+        }
+
+        val node = configService.findById(nodeId)
+
+        if (node == null) {
+            call.respond(HttpStatusCode.NotFound, "Node not found")
+            return
+        }
+
+
+        val cordaConnection = rpcConnectionManager.connect(node)
+        val proxy = cordaConnection.proxy
+        val queryResult = proxy.vaultQueryBy(
+            QueryCriteria.VaultQueryCriteria()
+                .withStateRefs(listOf(StateRef(SecureHash.parse(txId), index.toInt())))
+                .withStatus(Vault.StateStatus.ALL),
+            PageSpecification(),
+            Sort(
+                setOf(
+                    Sort.SortColumn(
+                        SortAttribute.Standard(Sort.VaultStateAttribute.RECORDED_TIME),
+                        direction = Sort.Direction.DESC
+                    )
+                )
+            ),
+            ContractState::class.java
+        )
+
+
+        call.respond(queryResult.states.zip(queryResult.statesMetadata).map {
+            ExtendedStateInfo(
+                it.first,
+                it.second,
+                cordaConnection.transactions.findFromInput(it.first.ref)
+                    .map { r -> TxReference("input", r.id.toString()) }
+                +
+                        cordaConnection.transactions.findFromReference(it.first.ref)
+                            .map { r -> TxReference("reference", r.id.toString()) }
+            )
+        }.first())
     }
 
     suspend fun search(call: ApplicationCall) {
@@ -86,8 +147,8 @@ class NodeVaultController(
                 paging.pageSize,
                 queryResult.totalStatesAvailable,
                 queryResult.states.zip(queryResult.statesMetadata).map {
-                    VaultItem(
-                        it.first.state,
+                    StateInfo(
+                        it.first,
                         it.second
                     )
                 }
@@ -118,7 +179,15 @@ data class ResultPage<T>(
     val items: List<T>
 )
 
-data class VaultItem(
-    val data: Any,
-    val metadata: Vault.StateMetadata
+
+
+data class ExtendedStateInfo (
+    val stateAndRef: StateAndRef<ContractState>,
+    val metadata: Vault.StateMetadata,
+    val transactions: List<TxReference>
+)
+
+data class TxReference (
+    val type: String,
+    val id: String
 )

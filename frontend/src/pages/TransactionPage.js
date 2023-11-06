@@ -1,13 +1,15 @@
 import React, {useEffect, useState} from "react";
 import {fetchTransaction} from "../services/RpcService";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import Loading from "../components/ux/loading/Loading";
 import BasePage from "./layout/BasePage";
 import {Card, Col, Container, Row, Table} from "react-bootstrap";
 
 const StateRow = ({type, state}) => {
+    let { nodeId } = useParams()
+    let navigate = useNavigate()
     return (
-        <tr>
+        <tr style={{cursor: "pointer"}} onClick={() => navigate(`/node/${nodeId}/state/${state.metadata.ref.tx}/${state.metadata.ref.index}`)}>
             <td>{type}</td>
             <td>{state.metadata.contractStateClassName}</td>
         </tr>

@@ -3,6 +3,7 @@ import {fetchStates} from "../../services/RpcService";
 import Loading from "../ux/loading/Loading";
 import {Badge} from "react-bootstrap";
 import {StateDetail} from "./StateDetail";
+import {useNavigate, useParams} from "react-router-dom";
 
 export const StatesTable = ({name, filters}) => {
     const [loaded, setLoaded] = useState(false)
@@ -49,7 +50,8 @@ export const StatesTable = ({name, filters}) => {
 
 
 const StateRow = ({state}) => {
-    const [open, setOpen] = useState(false)
+    let { nodeId } = useParams()
+    let navigate = useNavigate()
     let bgFromStatus = (status) => {
         if (status === "UNCONSUMED") return "success"
         return "secondary"
@@ -65,7 +67,7 @@ const StateRow = ({state}) => {
 
     return (
         <>
-            <tr onClick={() => setOpen(!open)} style={{cursor: "pointer"}}>
+            <tr onClick={() => navigate(`/node/${nodeId}/state/${state.metadata.ref.tx}/${state.metadata.ref.index}`)} style={{cursor: "pointer"}}>
                 <td><code>{shortName(state.metadata.contractStateClassName)}</code></td>
                 <td>{state.metadata.recordedTime}</td>
                 <td>
@@ -76,7 +78,6 @@ const StateRow = ({state}) => {
                 <td><Badge bg={bgFromRelevancy(state.metadata.relevancyStatus)}>{state.metadata.relevancyStatus}</Badge></td>
                 {/* Render other state properties as needed */}
             </tr>
-            {open && <StateDetail state={state} />}
         </>
     )
 }
