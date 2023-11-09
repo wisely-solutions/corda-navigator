@@ -28,6 +28,9 @@ export const fetchStates = async (nodeId, filters, pagination) => {
     if (filters.stateTypes && filters.stateTypes.length && filters.stateTypes.length > 0) {
         query = query + "&" + filters.stateTypes.map(it => `stateType=${it}`).join("&")
     }
+    if (filters.linearId) {
+        query = query + `&linearId=${filters.linearId}`
+    }
     return axios.get(`${API_BASE_URL}/node/${nodeId}/state/search?${query}`);
 };
 

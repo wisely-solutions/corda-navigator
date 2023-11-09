@@ -7,6 +7,7 @@ import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.StateRef
 import net.corda.core.contracts.TransactionState
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.crypto.SecureHash
 import net.corda.core.internal.isAbstractClass
 import net.corda.core.node.services.Vault
@@ -103,6 +104,7 @@ class NodeVaultController(
     suspend fun search(call: ApplicationCall) {
         val nodeId = call.nodeId()
         val pageRequest = call.pagination()
+        val linearId = call.request.queryParameters["linearId"]
 
         val node = configService.findById(nodeId) ?: throw EntityNotFoundException.node(nodeId)
 
@@ -120,10 +122,17 @@ class NodeVaultController(
                 Class.forName(it) as Class<out ContractState>
             }?.toSet() ?: setOf()
 
-            val queryResult = proxy.vaultQueryBy(
-                QueryCriteria.VaultQueryCriteria()
+            val vaultQueryCriteria = linearId
+                ?.let {
+                    QueryCriteria.LinearStateQueryCriteria(linearId = listOf(UniqueIdentifier.fromString(linearId)))
+                        .withContractStateTypes(stateTypesFilter)
+                        .withStatus(Vault.StateStatus.ALL)
+                }
+                ?: QueryCriteria.VaultQueryCriteria()
                     .withContractStateTypes(stateTypesFilter)
-                    .withStatus(Vault.StateStatus.ALL),
+                    .withStatus(Vault.StateStatus.ALL)
+            val queryResult = proxy.vaultQueryBy(
+                vaultQueryCriteria,
                 paging,
                 Sort(
                     setOf(

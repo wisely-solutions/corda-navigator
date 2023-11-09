@@ -9,6 +9,7 @@ import TransactionPage from "./pages/TransactionPage";
 import StatePage from "./pages/StatePage";
 import StatesPage from "./pages/StatesPage";
 import TransactionsPage from "./pages/TransactionsPage";
+import LinearStatesPage from "./pages/LinearStatesPage";
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                         <Route path="/node/add" element={<AddNodePage/>}/>
                         <Route path="/node/:nodeId" element={<NodePage/>}/>
                         <Route path="/node/:nodeId/states" element={<StatesPage/>}/>
+                        <Route path="/node/:nodeId/states/linear/:linearId" element={<LinearStatesPage/>}/>
                         <Route path="/node/:nodeId/transactions" element={<TransactionsPage/>}/>
                         <Route path="/node/:nodeId/transaction/:txId" element={<TransactionPage/>}/>
                         <Route path="/node/:nodeId/state/:txId/:outputIndex" element={<StatePage/>}/>

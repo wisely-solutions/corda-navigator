@@ -53,8 +53,10 @@ export const StateDetail = ({state}) => {
 
                     <Table>
                         <thead>
-                        <th>Type</th>
-                        <th>Transaction</th>
+                        <tr>
+                            <th>Type</th>
+                            <th>Transaction</th>
+                        </tr>
                         </thead>
                         <tbody>
                         <tr>
